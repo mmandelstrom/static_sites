@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Textype(Enum):
+class TextType(Enum):
     TEXT = "text"
     BOLD = "bold"
     ITALIC = "italic"
