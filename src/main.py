@@ -1,20 +1,13 @@
-from textnode import TextType, TextNode
+from textnode import *
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from enum import Enum
 
 def main():
 
-    node = ParentNode(
-        "p",
-        [
-            LeafNode("b", "Bold text"),
-            LeafNode(None, "Normal text"),
-            LeafNode("i", "italic text"),
-            LeafNode(None, "Normal text"),
-            ParentNode("div", [LeafNode("i", "this is a nested child"), LeafNode("b", "This is the second nested child", {"href": "https://www.google.com"})])
-        ],
-    )
+    node = TextNode('text', 'text')
+    node2 = TextNode('this is the text', TextType.BOLD)
 
-    print(node.to_html())
-    
+    html_node = text_node_to_html_node(node2)
+  
+    print(html_node)
 main()

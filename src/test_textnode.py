@@ -39,9 +39,10 @@ class TestTextNode(unittest.TestCase):
             node4 = TextNode("This is a text node", TextType.CODE)
             node5 = TextNode("This is a text node", TextType.LINK)
             node6 = TextNode("This is a text node", TextType.IMAGE)
-            
+
         except Exception as e:
             self.fail(f"TextNode creation failed with a valid TextType: {e}")
+
 
 if __name__ == "__main__":
     unittest.main()
