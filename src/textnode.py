@@ -26,7 +26,7 @@ def text_node_to_html_node(text_node):
      match(text_node.text_type):
 
         case TextType.TEXT:
-            return LeafNode(text_node.text)
+            return LeafNode(value = text_node.text)
             
         case TextType.BOLD:
             return LeafNode('b', text_node.text)
@@ -41,6 +41,6 @@ def text_node_to_html_node(text_node):
             return LeafNode('a', text_node.text, text_node.url)
             
         case TextType.IMAGE:
-            return LeafNode('img', None, text_node.url)
+            return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
         case _:
             raise ValueError("Invalid TextType")
