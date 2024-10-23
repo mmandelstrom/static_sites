@@ -5,9 +5,11 @@ class HTMLNode:
         self.children = children
         self.props = props
 
+#To be overwritten by child classes
     def to_html(self):
         raise NotImplementedError
-    
+
+#Loop through properties and build a string if they are present   
     def props_to_html(self):
         if self.props is None:
             return ""
@@ -28,6 +30,7 @@ class LeafNode(HTMLNode):
     def __init__(self, tag=None, value=None, props=None):
         super().__init__(tag, value,  None, props)
 
+#Return a string with leafnode value, tag and property transformed to html
     def to_html(self):
         if self.value is None:
             raise ValueError
@@ -42,7 +45,7 @@ class ParentNode(HTMLNode):
     def __init__(self, tag, children, props=None):
         super().__init__(tag, None, children, props)
 
-
+#Return a string with leafnode value, tag and property transformed to html, if the node has child nodes it recursively calls the function until all nodes have been transformed
     def to_html(self):
         if self.tag is None:
             raise ValueError("No tag submitted")
