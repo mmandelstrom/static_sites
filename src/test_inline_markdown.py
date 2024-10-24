@@ -2,7 +2,7 @@ import unittest
 
 from textnode import *
 from htmlnode import *
-from markdown_to_html import *
+from inline_markdown import *
 
 class TestHTMLNode(unittest.TestCase):
     def test_split_nodes_delimiter_bold(self):
@@ -210,6 +210,100 @@ class TestHTMLNode(unittest.TestCase):
             TextNode('alt text', TextType.IMAGE, 'https://url_to_second.image'),
             TextNode('more alt text', TextType.IMAGE, 'https://url_to_third_image')
         ])
+
+
+    def test_text_to_text_nodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ])
+
+    def test_text_to_text_nodes_no_alt_image(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ])
+
+
+    def test_text_to_text_nodes_no_alt_no_url_image(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![]() and a [link](https://boot.dev)"
+        with self.assertRaises(Exception) as context:
+            text_to_textnodes(text)
+        self.assertEqual(str(context.exception), "Invalid input: Missing URL.")
+        
+
+    def test_text_to_text_nodes_no_url_link(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![alt](https://url.com) and a [link]()"
+        with self.assertRaises(Exception) as context:
+            text_to_textnodes(text)
+        self.assertEqual(str(context.exception), "Invalid input: Missing URL.")
+
+    def test_text_to_text_nodes_no_alt_link(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![alt_text](https://i.imgur.com/fJRm4Vk.jpeg) and a [](https://boot.dev)"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("alt_text", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("", TextType.LINK, "https://boot.dev"),
+        ])
+
+    def test_text_to_text_nodes_bold(self):
+        text = "This is **bold** text with **multiple** instances of **it**"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" text with ", TextType.TEXT),
+            TextNode("multiple", TextType.BOLD),
+            TextNode(" instances of ", TextType.TEXT),
+            TextNode("it", TextType.BOLD)
+        ])
+
+    def test_text_to_text_nodes_italic(self):
+        text = "This is *italic* text with *multiple* instances of *it*"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" text with ", TextType.TEXT),
+            TextNode("multiple", TextType.ITALIC),
+            TextNode(" instances of ", TextType.TEXT),
+            TextNode("it", TextType.ITALIC)
+        ])
+
+    def test_text_to_text_nodes_code(self):
+        text = "This is `code` text with `multiple` instances of `it`"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("code", TextType.CODE),
+            TextNode(" text with ", TextType.TEXT),
+            TextNode("multiple", TextType.CODE),
+            TextNode(" instances of ", TextType.TEXT),
+            TextNode("it", TextType.CODE)
+        ])
+
 
 if __name__ == "__main__":
     unittest.main()

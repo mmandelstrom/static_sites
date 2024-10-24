@@ -4,60 +4,43 @@ from htmlnode import *
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     result = []
-#loop through all nodes and check if TexType is TEXT
-#If it's just appends the node as is to result
     for node in old_nodes:
         if node.text_type == TextType.TEXT:
 
-#Check wether delimiter is present, if it is attempt to split in to 3 parts
-            if delimiter in node.text:
-                parts = node.text.split(delimiter, 2)
+            # Split by all occurrences of the delimiter
+            parts = node.text.split(delimiter)
 
-#If string is only split in to 2 parts, there is an unclosed delimiter, we raise Exception
-                if len(parts) %  2 == 0:
-                    raise Exception("Invalid markdown")
+            # If the number of parts is even, raise an exception (this indicates unbalanced delimiters)
+            if len(parts) % 2 == 0:
+                raise Exception("Invalid markdown")
 
-#If the string is successfully split in to 3 parts we define first, middle and end                
-                if len(parts) == 3:
-                    first, middle, last = parts 
+            # Process the parts alternately as text_type and TEXT
+            for i, part in enumerate(parts):
+                if i % 2 == 0:
+                    if part:  # Only add non-empty parts as TEXT
+                        result.append(TextNode(part, TextType.TEXT))
+                else:
+                    if part:  # Only add non-empty parts as the given text_type
+                        result.append(TextNode(part, text_type))
 
-#check wether first/last are none and create textnodes accordingly
-                    if first and last:
-                        result.extend([
-                                TextNode(first, TextType.TEXT),
-                                TextNode(middle, text_type),
-                                TextNode(last, TextType.TEXT)
-                                ])
-                                                
-                    elif first and not last:
-                        result.extend([
-                                TextNode(first, TextType.TEXT),
-                                TextNode(middle, text_type),
-                                ])
-                    elif not first and last:
-                        result.extend([
-                            TextNode(middle, text_type),
-                            TextNode(last, TextType.TEXT)
-                        ])
-#If no delimiter is found we append node as is                        
-            else:
-                result.append(node)
-
-#If text is not TextType TEXT we append node as is                            
         else:
             result.append(node)
+    
     return result
-
-
 
 def split_nodes_link(old_nodes):
     result = []
     for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            result.append(node)
+            continue
+
         remaining_text = node.text
         links = extract_markdown_links(node.text)
 
         if not links:
-            return [node]
+            result.append(node)  
+            continue  
 
         for t in links:
             alt_text = t[0]
@@ -89,11 +72,17 @@ def split_nodes_link(old_nodes):
 def split_nodes_image(old_nodes):
     result = []
     for node in old_nodes:
+
+        if node.text_type != TextType.TEXT:
+            result.append(node)
+            continue
+        
         remaining_text = node.text
         links = extract_markdown_images(node.text)
 
         if not links:
-            return [node]
+            result.append(node)  
+            continue  
         
         for t in links:
             
@@ -123,6 +112,14 @@ def split_nodes_image(old_nodes):
     return result
 
 
+def text_to_textnodes(text):
+    node = TextNode(text, TextType.TEXT)
+    split_image = split_nodes_image([node])
+    split_link = split_nodes_link(split_image)
+    split_bold = split_nodes_delimiter(split_link, "**", TextType.BOLD)
+    split_italic = split_nodes_delimiter(split_bold, "*", TextType.ITALIC)
+    final_split = split_nodes_delimiter(split_italic, "`", TextType.CODE)
+    return final_split
 
 
 def extract_markdown_images(text):
@@ -132,8 +129,5 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     return (re.findall(r'\[(.*?)\]\((.*?)\)', text))
-    
-
-
 
 
