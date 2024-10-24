@@ -45,5 +45,82 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
         ])
 
 
+    def test_block_to_block_type_unordered_list(self):
+        block = "* This is the first list item\n* This is the second\n* And the third"
+        self.assertEqual(block_to_block_type(block), "unordered_list")
+
+    def test_block_to_block_type_heading_1(self):
+        block = "# This is a heading 1"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_to_block_type_heading_2(self):
+        block = "## This is a heading 2"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_to_block_type_heading_3(self):
+        block = "### This is a heading 2"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_to_block_type_heading_4(self):
+        block = "#### This is a heading 2"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_to_block_type_heading_5(self):
+        block = "##### This is a heading 2"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_to_block_type_heading_6(self):
+        block = "###### This is a heading 2"
+        self.assertEqual(block_to_block_type(block), "heading")
+
+    def test_block_to_block_type_invalid_heading(self):
+        block = "#This is just a paragraph"
+        self.assertEqual(block_to_block_type(block), "paragraph")
+
+    def test_block_to_block_type_code(self):
+        block = "```this is a code block !##!```"
+        self.assertEqual(block_to_block_type(block), "code")
+
+    def test_block_to_block_type_invalid_code(self):
+        block = "```this is a code block !##!``"
+        self.assertEqual(block_to_block_type(block), "paragraph")
+
+    def test_block_to_block_type_single_line_quote(self):
+        block = ">This is a quote"
+        self.assertEqual(block_to_block_type(block), "quote")
+
+    def test_block_to_block_type_multi_line_quote(self):
+        block = ">This is a quote\n>So is this\n> And also this"
+        self.assertEqual(block_to_block_type(block), "quote")
+
+    def test_block_to_block_type_invalid_multi_line_quote(self):
+        block = ">This is a quote\n>So is this\n And also this"
+        self.assertEqual(block_to_block_type(block), "paragraph")
+
+    def test_block_to_block_type_single_line_ul(self):
+        block = "* List"
+        self.assertEqual(block_to_block_type(block), "unordered_list")
+
+    def test_block_to_block_type_multi_line_ul(self):
+        block = "* List item 1\n- List item 2\n* List item 3"
+        self.assertEqual(block_to_block_type(block), "unordered_list")
+
+    def test_block_to_block_type_invalid_multi_line_ul(self):
+        block = "* List item 1\n- List item 2\n*List item 3"
+        self.assertEqual(block_to_block_type(block), "paragraph")
+
+    def test_block_to_block_type_single_line_ol(self):
+        block = "1. my list"
+        self.assertEqual(block_to_block_type(block), "ordered_list")
+
+    def test_block_to_block_type_multi_line_ol(self):
+        block = "1. my list\n2. second line\n3. third\n4. fourth"
+        self.assertEqual(block_to_block_type(block), "ordered_list")
+
+    def test_block_to_block_type_invalid_multi_line_ol(self):
+        block = "1. my list\n2. second line\n3. third\n5. fourth"
+        self.assertEqual(block_to_block_type(block), "paragraph")
+
+
 if __name__ == "__main__":
     unittest.main()
