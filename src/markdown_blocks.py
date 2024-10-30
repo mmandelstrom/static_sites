@@ -12,11 +12,26 @@ def markdown_to_blocks(markdown):
 def block_to_block_type(block):
     lines = block.split("\n")
 
-    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
-        return "heading"
+    if block.startswith("# "):
+        return "heading_1"
+    
+    elif block.startswith("## "):
+        return "heading_2"
+    
+    elif block.startswith("### "):
+        return "heading_3"
+    
+    elif block.startswith("#### "):
+        return "heading_4"
+    
+    elif block.startswith("##### "):
+        return "heading_5"
+    
+    elif block.startswith("###### "):
+        return "heading_6"
     
     elif block.startswith("```") and block.endswith("```"):
-        return "code"
+        return "code_block"
     
     elif all(item.startswith(">") for i, item in enumerate(lines)):
         return "quote"
@@ -33,51 +48,80 @@ def block_to_block_type(block):
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    result = []
 
     for block in blocks:
         block_type = block_to_block_type(block)
-        node = block_to_html_node(block, block_type)
-        print(node)
+        result.append(block_to_html_node(block, block_type))
+
+    return HTMLNode("div", None, result)
+
 
 
 def block_to_html_node(block, block_type):
-    match(block_type):
+    result = []
+    lines = block.split("\n")
 
+    match(block_type):
+        
         case "paragraph":
-            return HTMLNode("p", block)
+            return HTMLNode("p", None, text_to_children(block))
         
         case "ordered_list":
-            return HTMLNode("ol", block)
+            for i, item in enumerate(lines ,start=1):
+                prefix = f"{i}. "
+                line = item.lstrip(prefix)
+                result.append(HTMLNode("li", None, text_to_children(line)))
+            return HTMLNode('ol', None, result)
 
-        case "heading":
-            return HTMLNode("h1", block)
+        case "heading_1":
+            block = block.strip("# ")
+            return HTMLNode("h1", None, text_to_children(block))
+        
+        case "heading_2":
+            block = block.strip("## ")
+            return HTMLNode("h2", None, text_to_children(block))
+        
+        case "heading_3":
+            block = block.strip("### ")
+            return HTMLNode("h3", None, text_to_children(block))
+        
+        case "heading_4":
+            block = block.strip("#### ")
+            return HTMLNode("h4", None, text_to_children(block))
+        
+        case "heading_5":
+            block = block.strip("##### ")
+            return HTMLNode("h5", None, text_to_children(block))
+        
+        case "heading_6":
+            block = block.strip("###### ")
+            return HTMLNode("h6", None, text_to_children(block))
 
         case "unordered_list":
-            return HTMLNode("ul", block)
+            for line in lines:
+                line = line.strip("*- ")
+                result.append(HTMLNode("li", None, text_to_children(line)))
+            return HTMLNode('ul', None, result)
 
-        case "code":
-            return HTMLNode("code", block)
+        case "code_block":
+            block = block.strip("```")
+            return HTMLNode("pre", None, HTMLNode("code", None, LeafNode(None, block)))
+        
+        case "quote":
+            for line in lines:
+                line = line.lstrip(">")
+                result.append(text_to_children(line))
+            return HTMLNode("blockquote", None, result)
+
 
 
 def text_to_children(text):
     result = []
-    node = TextNode(text, TextType.TEXT)
-    delimit_bold = split_nodes_delimiter([node], "**", TextType.BOLD)
-    delimit_italic = split_nodes_delimiter(delimit_bold, "*", TextType.ITALIC)
-    delimit_code = split_nodes_delimiter(delimit_italic, "`", TextType.CODE)
-    split_link = split_nodes_link(delimit_code)
-    final = split_nodes_image(split_link)
-    
+    final = text_to_textnodes(text)
+
     for node in final:
         html_node = text_node_to_html_node(node)
         result.append(html_node)
-        
+
     return result
-
-
-text = "This is some text with **bold** and some *italic* inside it and some `code`"
-nodes = text_to_children(text)
-for node in nodes:
-    print(isinstance(node, LeafNode))  # Should print True for all
-
-print(nodes)
