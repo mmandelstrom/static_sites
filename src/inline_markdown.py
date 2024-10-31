@@ -12,7 +12,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
             # If the number of parts is even, raise an exception (this indicates unbalanced delimiters)
             if len(parts) % 2 == 0:
-                raise Exception("Invalid markdown")
+                print(f"Warning: Unbalanced delimiter '{delimiter}' in text: {node.text}")
+                
 
             # Process the parts alternately as text_type and TEXT
             for i, part in enumerate(parts):

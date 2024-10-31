@@ -123,7 +123,7 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
 
     def test_markdown_to_html_code_block(self):
        markdown = "```this is some*itlaic* **bold** code And some more stuff```"
-       self.assertEqual(markdown_to_html_node(markdown), HTMLNode("div", None, [HTMLNode("pre", None, HTMLNode("code", None, LeafNode(None, "this is some*itlaic* **bold** code And some more stuff")))]))
+       self.assertEqual(markdown_to_html_node(markdown), ParentNode("div", [ParentNode("pre", ParentNode("code", LeafNode(None, "this is some*itlaic* **bold** code And some more stuff")))]))
 
     def test_markdown_to_html_h1(self):
         markdown = "# This is a sentence with h1 heading"

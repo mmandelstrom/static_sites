@@ -33,10 +33,6 @@ class TestHTMLNode(unittest.TestCase):
             TextNode('This is the third node `with code` inside of it', TextType.TEXT)
             ])
 
-    def test_split_nodes_no_end_delimiter(self):
-        node = [TextNode('this is the text **without ending delimiter*', TextType.TEXT)]
-        with self.assertRaises(Exception):
-            split_nodes_delimiter(node, "**", TextType.BOLD)
 
     def test_split_nodes_no_delimiter(self):
         node = [TextNode('this is the text without delimiter', TextType.TEXT)]

@@ -54,7 +54,7 @@ def markdown_to_html_node(markdown):
         block_type = block_to_block_type(block)
         result.append(block_to_html_node(block, block_type))
 
-    return HTMLNode("div", None, result)
+    return ParentNode("div", result)
 
 
 
@@ -65,54 +65,54 @@ def block_to_html_node(block, block_type):
     match(block_type):
         
         case "paragraph":
-            return HTMLNode("p", None, text_to_children(block))
+            return ParentNode("p",text_to_children(block))
         
         case "ordered_list":
             for i, item in enumerate(lines ,start=1):
                 prefix = f"{i}. "
                 line = item.lstrip(prefix)
-                result.append(HTMLNode("li", None, text_to_children(line)))
-            return HTMLNode('ol', None, result)
+                result.append(ParentNode("li", text_to_children(line)))
+            return ParentNode('ol', result)
 
         case "heading_1":
             block = block.strip("# ")
-            return HTMLNode("h1", None, text_to_children(block))
+            return ParentNode("h1", text_to_children(block))
         
         case "heading_2":
             block = block.strip("## ")
-            return HTMLNode("h2", None, text_to_children(block))
+            return ParentNode("h2", text_to_children(block))
         
         case "heading_3":
             block = block.strip("### ")
-            return HTMLNode("h3", None, text_to_children(block))
+            return ParentNode("h3", text_to_children(block))
         
         case "heading_4":
             block = block.strip("#### ")
-            return HTMLNode("h4", None, text_to_children(block))
+            return ParentNode("h4", text_to_children(block))
         
         case "heading_5":
             block = block.strip("##### ")
-            return HTMLNode("h5", None, text_to_children(block))
+            return ParentNode("h5", text_to_children(block))
         
         case "heading_6":
             block = block.strip("###### ")
-            return HTMLNode("h6", None, text_to_children(block))
+            return ParentNode("h6", text_to_children(block))
 
         case "unordered_list":
             for line in lines:
                 line = line.strip("*- ")
-                result.append(HTMLNode("li", None, text_to_children(line)))
-            return HTMLNode('ul', None, result)
+                result.append(ParentNode("li", text_to_children(line)))
+            return ParentNode('ul',result)
 
         case "code_block":
             block = block.strip("```")
-            return HTMLNode("pre", None, HTMLNode("code", None, LeafNode(None, block)))
+            return ParentNode("pre", [ParentNode("code", [LeafNode(None, block)])])
         
         case "quote":
             for line in lines:
-                line = line.lstrip(">")
-                result.append(text_to_children(line))
-            return HTMLNode("blockquote", None, result)
+                line = line.lstrip(">").lstrip()
+                result.extend(text_to_children(line))
+            return ParentNode("blockquote", result)
 
 
 
@@ -125,3 +125,5 @@ def text_to_children(text):
         result.append(html_node)
 
     return result
+
+
