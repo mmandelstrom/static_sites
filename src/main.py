@@ -9,7 +9,7 @@ def main():
     destination = "./public/"
     copy_static(source, destination)
 
-    generate_page("./static/content/index.md", "./template.html", "./public/index.html")
+    generate_pages_recursive("./static/content/", "./template.html", "./public/")
 
     
    
