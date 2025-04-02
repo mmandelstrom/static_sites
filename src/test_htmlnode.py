@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode, LeafNode
 
 
 class TestTextNode(unittest.TestCase):
@@ -31,6 +31,27 @@ class TestTextNode(unittest.TestCase):
             "target": "_blank",
         })
         self.assertEqual("HTMLNode(a, this is a value, child, {'href': 'https://www.google.com', 'target': '_blank'})", node.__repr__())
+
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+
+    def test_leaf_to_html_a(self):
+        node = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
+        self.assertEqual('<a href="https://www.google.com">Click me!</a>', node.to_html())
+
+    def test_leaf_to_html_a_2(self):
+        node = LeafNode("a", "Click me!", {'href': 'https://www.google.com', 'target': '_blank'})
+        self.assertEqual('<a href="https://www.google.com" target="_blank">Click me!</a>', node.to_html())
+
+    def test_leaf_to_html_code(self):
+        node = LeafNode("code", "this is the code value")
+        self.assertEqual('<code>this is the code value</code>', node.to_html())
+
+    def test_leaf_to_html_no_tag(self):
+        node = LeafNode(None, "This is the value")
+        self.assertEqual("This is the value", node.to_html())
+
 
 if __name__ == "__main__":
     unittest.main()
