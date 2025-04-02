@@ -1,8 +1,8 @@
-from textnode import Textnode, TextType
+from textnode import TextNode, TextType
 
 def main():
 
-    tn = Textnode('This is some text', TextType.BOLD, 'https://url.url')
+    tn = TextNode('This is some text', TextType.BOLD, 'https://url.url')
     print(tn)
 
 
