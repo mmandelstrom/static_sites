@@ -19,6 +19,15 @@ class HTMLNode:
     def __repr__(self):
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
     
+    def __eq__(self, other): #Method to compare htmlnodes objects for tests
+        return (
+            self.tag == other.tag
+            and self.value == other.value
+            and self.children == other.children
+            and self.props == other.props
+        )
+    
+    
 
 class LeafNode(HTMLNode): #Leaf nodes requires a tag and takes no child nodes
     def __init__(self, tag, value, props = None):
@@ -38,6 +47,9 @@ class LeafNode(HTMLNode): #Leaf nodes requires a tag and takes no child nodes
             return f"<{self.tag}{props}>{self.value}</{self.tag}>"
         else: #If node does not have props, add tags and return
             return f"<{self.tag}>{self.value}</{self.tag}>"
+        
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
 
 
 class ParentNode(HTMLNode):

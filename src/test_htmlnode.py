@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class TestTextNode(unittest.TestCase):
@@ -51,6 +51,56 @@ class TestTextNode(unittest.TestCase):
     def test_leaf_to_html_no_tag(self):
         node = LeafNode(None, "This is the value")
         self.assertEqual("This is the value", node.to_html())
+
+    def test_parent_to_html_div_1_child(self):
+        node = ParentNode("div", [
+            LeafNode("p", "Child 1 value")
+        ])
+        self.assertEqual(node.to_html(), "<div><p>Child 1 value</p></div>")
+
+    def test_parent_to_html_anchor_multiple_children(self):
+        node = ParentNode("a", [
+            LeafNode("p", "child 1 value"),
+            LeafNode("a", "click me!", {'href': 'https://www.google.com', 'target': '_blank'}),
+            LeafNode(None, "text with no tag"),
+            LeafNode("img", "image", {'href': 'https://www.myimage.com', 'target': '_blank'})
+        ], {'href': 'https://boot.dev'})
+        self.assertEqual(node.to_html(), '<a href="https://boot.dev"><p>child 1 value</p><a href="https://www.google.com" target="_blank">click me!</a>text with no tag<img href="https://www.myimage.com" target="_blank">image</img></a>')
+
+    def test_nested_parent_and_leaf(self):
+        node = ParentNode("div", [
+            LeafNode("p", "first child"),
+            ParentNode("div", [
+                LeafNode("code", "first nested child"),
+                ParentNode("div", [
+                    LeafNode("p", "second level nest")
+                ])
+            ]),
+            LeafNode("a", "second child", {'href': 'https://boot.dev'})
+        ])
+        self.assertEqual(node.to_html(), '<div><p>first child</p><div><code>first nested child</code><div><p>second level nest</p></div></div><a href="https://boot.dev">second child</a></div>')
+
+    def test_parentnode_value_error_tag(self):
+        node = ParentNode(None,[
+            LeafNode("p", "first child")
+        ])
+        with self.assertRaises(ValueError) as context:
+            node.to_html()
+        self.assertEqual(str(context.exception), "Parentnode must have a tag")
+
+    def test_parentnode_value_error_child(self):
+        node = ParentNode("div",[])
+        with self.assertRaises(ValueError) as context:
+            node.to_html()
+        self.assertEqual(str(context.exception), "ParentNode must have children")
+
+    def test_parentnode_value_error_child_2(self):
+        node = ParentNode("div", None)
+        with self.assertRaises(ValueError) as context:
+            node.to_html()
+        self.assertEqual(str(context.exception), "ParentNode must have children")
+
+    
 
 
 if __name__ == "__main__":
