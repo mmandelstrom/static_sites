@@ -77,7 +77,6 @@ def split_nodes_image(old_nodes):
             extracted_images = extract_markdown_images(text)
             if extracted_images: #Check to make sure functioncall returned something
                 image_alt, image_link = extracted_images[0]
-
                 remaining_text = text.split(f"![{image_alt}]({image_link})", maxsplit=1)#Split text on image
                 if len(remaining_text[0]) > 0: #If there was text before the image create a textnode
                     res.append(TextNode(remaining_text[0], TextType.TEXT))
@@ -102,30 +101,13 @@ def split_nodes_link(old_nodes):
             extracted_link = extract_markdown_links(text)
             if extracted_link: #If the input node contains links
                 alt_text, url = extracted_link[0]
-
-            remaining_text = text.split(f"[{alt_text}]({url})", maxsplit=1)
-            if len(remaining_text[0]) > 0:#If there was text before image add it as node with texttype text
-                res.append(TextNode(remaining_text[0], TextType.TEXT))
-            res.append(TextNode(alt_text, TextType.LINK, url)) #Add textnode with link
-            text = remaining_text[1] #Update text to remaing and continue loop
-        else: #If no link is found, add text if there is some then break loop
-            if len(text) > 0:
-                res.append(TextNode(text, TextType.TEXT))
-                break
+                remaining_text = text.split(f"[{alt_text}]({url})", maxsplit=1)
+                if len(remaining_text[0]) > 0:#If there was text before image add it as node with texttype text
+                    res.append(TextNode(remaining_text[0], TextType.TEXT))
+                res.append(TextNode(alt_text, TextType.LINK, url)) #Add textnode with link
+                text = remaining_text[1] #Update text to remaing and continue loop
+            else: #If no link is found, add text if there is some then break loop
+                if len(text) > 0:
+                    res.append(TextNode(text, TextType.TEXT))
+                    break
     return res
-
-
-
-node = TextNode(
-        "Here is just one image at the end ![final image](https://example.com)",
-        TextType.TEXT,
-    )
-
-
-
-node1 = TextNode(
-    "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
-    TextType.TEXT,
-)
-
-print(split_nodes_link([node1]))
