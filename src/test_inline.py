@@ -1,5 +1,5 @@
 import unittest
-from inline_funcs import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_link, split_nodes_image
+from inline_funcs import extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_link, split_nodes_image, text_to_textnodes
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import TextNode, TextType
 
@@ -284,6 +284,51 @@ class TestInline(unittest.TestCase):
             TextNode("youtube", TextType.LINK, "https://www.youtube.com"),
             TextNode(" and some text", TextType.TEXT),
             TextNode("This node should be added as is", TextType.BOLD)
+        ])
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ])
+
+    def test_text_to_textnodes_with_empty(self):
+        self.assertEqual(text_to_textnodes(""), [])
+
+    def test_text_to_textnodes_multiple_links(self):
+        text = "[link](https://mylink.com)[second link](https://secondlink.com)"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("link", TextType.LINK, "https://mylink.com"),
+            TextNode("second link", TextType.LINK, "https://secondlink.com")
+        ])
+
+    def test_text_to_textnodes_multiple_images(self):
+        text = "![image](https://image.one)![image](https://image.two) and some text between ![img](https://image.three)"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("image", TextType.IMAGE, "https://image.one"),
+            TextNode("image", TextType.IMAGE, "https://image.two"),
+            TextNode(" and some text between ", TextType.TEXT),
+            TextNode("img", TextType.IMAGE, "https://image.three")
+        ])
+
+    def test_text_to_textnodes_multiple_of_each(self):
+        text = "[link](https://boot.dev)**with some bold text** and ![img](https://img.com)_italic words_ and normal words"
+        self.assertEqual(text_to_textnodes(text), [
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+            TextNode("with some bold text", TextType.BOLD),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("img", TextType.IMAGE, "https://img.com"),
+            TextNode("italic words", TextType.ITALIC),
+            TextNode(" and normal words", TextType.TEXT)
         ])
 
 if __name__ == "__main__":
