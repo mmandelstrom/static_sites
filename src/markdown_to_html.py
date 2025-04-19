@@ -38,16 +38,17 @@ def block_to_html_node(block, block_type):
             lines = block.split("\n")
             new_lines = []
             for line in lines:
-                new_lines.append(line.strip(">"))
+                new_lines.append(line.strip("> ").strip())
             text = "\n".join(new_lines)
-            return ParentNode("blockquote", text_to_children(text.replace("\n", " ")))
+            return ParentNode("blockquote", text_to_children(text))
+
         
         case BlockType.UNORDERED_LIST:
             lines = block.split("\n")
             res = ""
             list_items = []
             for line in lines:
-                list_items.append(ParentNode("li", text_to_children(line.strip("-"))))
+                list_items.append(ParentNode("li", text_to_children(line.strip("-").lstrip(" "))))
             return ParentNode("ul", list_items)
         
         case BlockType.ORDERED_LIST:
@@ -56,7 +57,7 @@ def block_to_html_node(block, block_type):
             list_items = []
             i = 1
             for line in lines:
-                list_items.append(ParentNode("li", text_to_children(line.strip(f"{i}."))))
+                list_items.append(ParentNode("li", text_to_children(line.strip(f"{i}.").lstrip(" "))))
                 i += 1
             return ParentNode("ol", list_items)
         
@@ -71,6 +72,15 @@ def text_to_children(text):
     for node in child_nodes:
         res.append(text_node_to_html_node(node))
     return res
+
+
+def extract_title(markdown):
+    lines = markdown.split("\n")
+    for line in lines:
+        if line.startswith("# "):
+            return line.strip("# ")
+        raise Exception("No H1 Header found")
+
 
 
     

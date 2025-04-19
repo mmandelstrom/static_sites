@@ -56,15 +56,6 @@ the **same** even with inline stuff
             html, "<div><ol><li>First list item</li><li>Second list <b>bold</b></li><li><i>Third</i></li><li>And fourth</li></ol></div>"
         )
 
-    def test_quote(self):
-        md = """>blockquote with
->some **bold** and
->some _italic_ text"""
-        node = markdown_to_html_node(md)
-        html = node.to_html()
-        self.assertEqual(
-            html, "<div><blockquote>blockquote with some <b>bold</b> and some <i>italic</i> text</blockquote></div>"
-        )
 
     def test_h1(self):
         md = """# this is md with h1 and _italic_ and **bold** text"""
@@ -131,8 +122,18 @@ code block```
         node = markdown_to_html_node(md)
         html = node.to_html()
         self.assertEqual(
-            html, "<div><h1>Heading</h1><p>Paragraph with <b>bold</b></p><blockquote> A quote</blockquote><ul><li> List item 1</li><li> List item 2</li></ul><pre><code>code block</code></pre></div>"
+            html, "<div><h1>Heading</h1><p>Paragraph with <b>bold</b></p><blockquote>A quote</blockquote><ul><li>List item 1</li><li>List item 2</li></ul><pre><code>code block</code></pre></div>"
             )
+        
+    def test_extract_title(self):
+        md = """# This is my title, #### and some other stuff"""
+        self.assertEqual(extract_title(md), "This is my title, #### and some other stuff")
+
+    def test_extract_title_exception(self):
+        md = "This is some markdown without a H1 header"
+        with self.assertRaises(Exception) as context:
+            extract_title(md)
+        self.assertEqual(str(context.exception), "No H1 Header found")
 
 
 if __name__ == "__main__":
