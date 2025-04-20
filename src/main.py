@@ -4,8 +4,8 @@ from markdown_to_html import markdown_to_html_node, extract_title
 from generate_page import *
 
 def main():
-    if sys.argv[0]:
-        basepath = sys.argv[0]
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
     else:
         basepath = "/"
 
