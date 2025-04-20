@@ -8,6 +8,6 @@ def main():
     public_root = "./public/"
     clear_public(public_root)
     copy_static(static_root, public_root)
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
-
+    generate_pages_recursive("./content/", "./template.html", public_root)
+   
 main()
