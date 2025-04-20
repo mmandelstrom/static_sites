@@ -3,7 +3,7 @@ from markdown_to_html import markdown_to_html_node, extract_title
 
 #Holds functions to generate pages from static content
 
-def clear_public(folder): #Deletes all content inside /public/
+def clear_public(folder): #Deletes all content inside /docs/
         if not os.path.exists(folder):
             os.mkdir(folder)
             print(f"Creating directory: {folder}")
@@ -42,7 +42,7 @@ def copy_static(source, destination): #Copies everything from ./static/ to ./pub
                 copy_static(source_path, destination_path)
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
         print(f"Generating a page from {from_path} to {dest_path} using {template_path}")
 
         with open(from_path) as f:
@@ -54,13 +54,15 @@ def generate_page(from_path, template_path, dest_path):
         node = markdown_to_html_node(md)
         html = node.to_html()
         title = extract_title(md)
-        template = template.replace("{{ Title }}", title).replace("{{ Content }}", html)
+        template = template.replace("{{ Title }}", title).replace("{{ Content }}", html) #add title and html content
+        template = template.replace('href="/', f'href="{basepath}').replace('src="/', f'src="{basepath}') #make generator work with github pages
+
 
         with open(dest_path, 'w') as f:
             f.write(template)
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     if not os.path.exists(dest_dir_path):
             os.mkdir(dest_dir_path)
             print(f"Creating directory: {dest_dir_path}")
@@ -71,7 +73,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         
 
         if os.path.isfile(source_path):
-            generate_page(source_path, template_path, dest_path)
+            generate_page(source_path, template_path, dest_path, basepath)
             
         else:
-            generate_pages_recursive(source_path, template_path, dest_path)
+            generate_pages_recursive(source_path, template_path, dest_path, basepath)
